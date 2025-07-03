@@ -1,75 +1,107 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { HeaderTabsProps } from "@/components/shared/header/HeaderTabs";
+import { router, useNavigation } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { Alert } from "react-native";
+import { Button, ScrollView, Text, XStack, YStack } from "tamagui";
+import {DeliveryLocation} from "../../components/shared/DeliveryLocation"
+import { HomeCarousel } from "@/components/screens/home/HomeCarousel";
+import { HomeSuggestions } from "@/components/screens/home/HomeSuggestions";
+import { DefaultButton } from "@/components/shared/DefaultButton";
+import { useAuth } from "@/context/AuthProvider";
+import firestore, { collection, FirestoreError, onSnapshot } from '@react-native-firebase/firestore';
+import { Product } from "@/types/product";
+import { ProductDealCard } from "@/components/screens/home/ProductDealCard";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+
+export default function Home() {
+   const navigation = useNavigation();
+   const { user } = useAuth();
+   const [deals, setDeals] = useState<Product[]>([]);
+   const [loading, setLoading] = useState(true);
+   
+   const onClickAuth = () => router.push("/login");
+
+   const tabs: HeaderTabsProps["tabs"] =[
+    { active: true,
+        title: "Lists",
+        onPress: () => Alert.alert("Lists")
+    },
+    { 
+        title: "Prime",
+        onPress: () => Alert.alert("Prime")
+    },
+    { 
+        title: "Video",
+        onPress: () => Alert.alert("Video")
+    },
+   ]
+
+ const onProductPress = ({id}: Product) => {
+            router.push(`/(search)/product/${id}`)
+ }
+
+  const getDeals = useCallback(async () => {
+    try {
+      setLoading(true);
+      const querySnapshot = await firestore()
+        .collection('1') // Changed from '1' to meaningful name
+        .get();
+
+      const dealsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      setDeals(dealsData );
+      console.log(dealsData)
+    } catch (error) {
+      console.error("Error fetching deals: ", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerSearchShown: true,
+    });
+
+    getDeals();
+  }, [navigation, getDeals]);
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+  
+    return (<ScrollView flex={1}>
+        <DeliveryLocation />
+        <HomeCarousel/>
+        <HomeSuggestions/>
+        <YStack bg={"white"} width="100%" p={20} gap={20}>
+             <Text  als={"flex-start"} fontSize={20} fontWeight={"bold"}>
+                {user ? "Deals for you" : "Sign in for best experience"}
+             </Text>
+             {user ? (
+                <>
+                  <XStack gap={30} justifyContent={"space-between"} 
+                   flexWrap={"wrap"}
+                  >
+                    {deals.map((product) => 
+                        <ProductDealCard
+                            key={product.id}
+                            product={product}
+                            onPress={() => onProductPress(product)}
+                        />
+                      )}
+                  </XStack>
+                </>
+             ): (
+                <DefaultButton onPress={onClickAuth}>
+                     Sign in Securely
+                </DefaultButton>
+             )}
+        </YStack>
+        
+    </ScrollView>)
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Arm Chair",
+    "amountInStock": 34,
+    "currentPrice": 6400.90,
+    "previousPrice": 7000.00,
+    "deliveryPrice": 120.45,
+    "deliveryInDays": 4,
+    "isSimuShopChoice": true,
+    "imageUrl": "armchair.png",
+    "model3DUrl": "armchair.glb"
+  },
+  {
+    "name": "Raptor Series EC Games Red Chair",
+    "amountInStock": 32,
+    "currentPrice": 4550,
+    "previousPrice": 5000,
+    "deliveryPrice": 43.50,
+    "deliveryInDays": 6,
+    "isSimuShopChoice": false,
+    "imageUrl": "couch.png",
+    "model3DUrl": "couch.glb"
+  }
+]

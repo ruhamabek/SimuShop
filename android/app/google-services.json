@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "87219239377",
+    "project_id": "react-native-simushop",
+    "storage_bucket": "react-native-simushop.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:87219239377:android:454b630551db92155a08f0",
+        "android_client_info": {
+          "package_name": "com.anonymous.SimuShop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCq-6ESsZO4YFvXWSEqyNyJco6b9hPJKdI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
